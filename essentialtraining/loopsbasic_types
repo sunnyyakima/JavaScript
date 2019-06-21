@@ -1,0 +1,32 @@
+
+var i; 
+
+for (i = 0; i < 10; i++)  { 
+	document.write("Hello World!\n"); 
+} 
+
+var x = 1; 
+
+	// Exit when x becomes greater than 4 
+while (x <= 4) 	{ 
+		document.write("Value of x:" + x + "<br />"); 
+		x++; 
+} 
+
+
+// creating an Object 
+var languages = { first : "C", second : "Java", 
+					third : "Python", fourth : "PHP", 
+					fifth : "JavaScript" }; 
+// iterate through every property of the object languages and print all of them 
+// using for..in loops 
+for (itr in languages) { 
+		document.write(languages[itr] + "<br >"); 
+	} 
+
+var extLinks = document.querySelectorAll('a[href^="http"]');
+console.log(extLinks);
+
+for (var i = 0; i < extLinks.length; i++) {
+  console.log(extLinks[i])
+}
