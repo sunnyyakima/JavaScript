@@ -1,0 +1,70 @@
+//https://gomakethings.com/ajax-and-apis-with-vanilla-javascript/
+//https://gomakethings.com/working-with-xhr-response-data-in-vanilla-js/
+
+To obtain resources from the server, you must make a request. After all, the server doesn’t read minds. 
+You build up a request by using methods and properties, and then you use the send() method to transmit 
+the request you’ve built.
+
+////////////////////
+//  request
+///////////////////
+// Set up our HTTP request
+var xhr = new XMLHttpRequest();
+
+// Setup our listener to process completed requests
+xhr.onload = function () {
+
+	// Process our return data
+	if (xhr.status >= 200 && xhr.status < 300) {
+		// What do when the request is successful
+		console.log('success!', xhr);
+	} else {
+		// What do when the request fails
+		console.log('The request failed!');
+	}
+
+	// Code that should run regardless of the request status
+	console.log('This always runs...');
+};
+
+// Create and send a GET request
+// The first argument is the post type (GET, POST, PUT, DELETE, etc.)
+// The second argument is the endpoint URL
+xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts');
+xhr.send();
+
+
+////////////////////
+// response
+////////////////////
+The most common response type from API calls is JSON, an acronym for JavaScript Object Notation. It has the same 
+structure and format (for the most part) as a JavaScript object (sometimes it’s wrapped in an array).
+
+The response data can be accessed from the responseText property on the XMLHttpRequest object.
+
+If you called the /posts endpoint over at JSON Placeholder, you would get back a list of posts. You might try to loop through them like this.
+
+XHR.responseText is returned as a string, even though it’s in JSON format.
+
+// Set up our HTTP request
+var xhr = new XMLHttpRequest();
+
+// Setup our listener to process completed requests
+xhr.onload = function () {
+
+	// Process our return data
+	if (xhr.status >= 200 && xhr.status < 300) {
+		// Runs when the request is successful
+		console.log(JSON.parse(xhr.responseText));     //   <<== note JSON.parse
+	} else {
+		// Runs when it's not
+		console.log(JSON.parse(xhr.responseText));     //   <<== note JSON.parse
+	}
+
+};
+
+// Create and send a GET request
+// The first argument is the post type (GET, POST, PUT, DELETE, etc.)
+// The second argument is the endpoint URL
+xhr.open('GET', 'https://jsonplaceholder.typicode.com/posts');
+xhr.send();
