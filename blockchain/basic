@@ -1,0 +1,179 @@
+https://medium.com/@spenserhuang/learn-build-a-javascript-blockchain-part-1-ca61c285821e
+
+The best way to understand blockchain is to build one
+Spenser Huang
+In this Part 1 of the Javascript Blockchain Series, we will cover the block object and blockchain object and discuss
+its structure and implications.
+I’m a firm believer in the idea that the best way to learn a technology is to build it. Naturally, my interest in 
+blockchain technology has led me to try to build a blockchain of my own. As a fellow blockchain enthusiast, I will walk
+you through the steps of building a basic blockchain with a built-in proof of work system. Along the way, I will discuss
+the implications of the different features.
+What do you need: the latest version of Node.js (I’m using v8.7.0) and npm (Node Package Manager) (I’m using v5.6.0)
+Who is this for: anyone who is interested in learning about blockchain and has some basic understanding of Javascript
+Where is the repo: the code can be found here.
+
+Step 1: Building Blocks
+Create a folder called js-blockchain and create a file called main.js In this guide, we will be using one single file 
+so you can always refer to the source code if you encounter any problems.
+Blockchain Structure
+Blockchains are built through a combination of linked lists and merkle trees. The linked list structure allows for the 
+chain to continually build on top of itself and is where the name blockchain derives from. A blockchain is literally a 
+chain of blocks linked to one another through the linked list structure. One thing to note however, is that instead of 
+holding a traditional pointer to refer to the previous block, it uses the hash of the previous block to refer to it.
+If you are not familiar with what a hash is, here is a primer. Hashes are simply deterministic functions that create 
+specific outputs for each input, and they are usually irreversible meaning it is extremely difficult to derive the input
+from the output. They are critical to blockchain as they are key to making the chain immutable and to maintaining the 
+integrity of the data.
+To not overcomplicate things, we will not implement the merkle tree of transactions in this guide.
+
+http://learningspot.altervista.org/bitcoin-blocks/
+Block Object
+We’ll create a Block class first which will hold a constructor function, a calculateHash function, and a mineBlock function.
+We start off with the constructor function which instantiates Block objects and provides it with its properties.
+
+Block Inputs
+Each block object takes in a timestamp and block data. The timestamp shows when the block was created. This is useful 
+for instance in Bitcoin(BTC) as BTC is designed to have a difficulty such that the average mining time per block is 10
+minutes. Thus, the system can use this timestamp data to rebalance the mining difficulty every month. The block data holds
+the information stored in the chain. In many currencies such as BTC, this is where transaction data is stored in the form
+of merkle trees.
+Block Data
+As you can see, in addition to the 3 data input fields, our Block object also holds an index, a previousHash , a hash, and
+a nonce. The index communicates where in the chain the block is located. The hash of the previous block is what maintains 
+the integrity of the chain. The block’s hash simply holds the block’s own hash derived from a calculateHash function. The 
+nonce is another important piece of the block that is critical to building in a mining mechanism for our blockchain which 
+we will discuss in part 2 of this series. For now, we will set our nonce variable to 0.
+Note, the hash of the previous block is what maintains the integrity of the chain. To check the integrity of the chain 
+we go through the chain calculating each block’s hash and matching it with this previousHash data. If one single piece of
+the block’s information is tampered with, it will spit out a completely different hash and will be immediately detectable 
+when matched against the previousHash data stored in the block following the tampered block. We will create a checkValid 
+function later that demonstrates this.
+Crypto-JS Library
+Now we will add in a calculateHash function to our block. For our hash function, we will borrow from crypto-js library and
+use their SHA256 hash function. The SHA256 hash function was developed by the NSA and is an irreversible hash function. 
+This is actually used in BTC mining as its proof of work algorithm and in BTC address creation thanks to its security.
+To install the crypto-js library, go to your terminal and enter your js-blockchain folder then install the library with 
+npm with the following code:
+npm install --save crypto-js
+You will then see the following output:
+npm WARN saveError ENOENT: no such file or directory, open '/Users/spenserhuang/Desktop/js-blockchain/package.json'
+npm WARN enoent ENOENT: no such file or directory, open '/Users/spenserhuang/Desktop/js-blockchain/package.json'
+npm WARN js-blockchain No description
+npm WARN js-blockchain No repository field.
+npm WARN js-blockchain No README data
+npm WARN js-blockchain No license field.
++ crypto-js@3.1.9-1
+updated 1 package in 1.75s
+Do not worry about the warning for now as that will not affect us in the context of this project. The error exists because
+the folder we created is extremely barebones and does not have additional files such as package.json or other node and repo
+files.
+Calculate Hash
+Nevertheless, now that you have the library installed, you can create a SHA256 constant and pull the information directly 
+with a require statement. We will use that to create our calculateHash function.
+
+We create our own function called calculateHash that we will use to give each block its own hash. As you can see with the 
+function, the hash takes in every piece of the block object, throws it into a SHA256 function, and converts it into a string.
+In this project, we convert our SHA256 result into a string as strings are easier to process and match.
+The calculateHash function takes in EVERY piece of the block’s data. As a result, if any single piece of data gets tampered
+with, even if it’s a new decimal point, the block’s hash will immediately be different. This is a great feature in making 
+the blockchain secure. Here is a great guide to learn more about this feature of the blockchain!
+
+
+Step 2: Building the Blockchain
+Now that we have the individual block structure created, we need to create a structure, a Blockchain class object, to 
+link them together and to build the basic functionality that comes along with normal blockchains. To keep things as simple
+as possible, our blockchain will only hold a constructor function, a createGenesis function, a latestBlock function, an 
+addBlock function, and a checkValid function.
+Blockchain Object
+Our Blockchain class needs a few key functionalities, namely the ability to be instantiated, to start, to access the latest
+block’s information, and to extend itself by adding a new block to it.
+
+Constructor Function
+First, we need a constructor function to get our blockchain instantiated. This will be a simple function that simply 
+creates a blockchain object with achain property in a list structure. This is why our Block objects held indices. The 
+index property of our blocks are used to find its position in our chain list.
+Create Genesis Function
+Second, our blockchain needs a createGenesis function that creates the very first block of our chain. In blockchain 
+convention, the very first block of any chain is also known as the “Genesis block,” thus the name createGenesis. With
+this block, we usually manually input its information. As it’s the first block in the chain, it has an index value of 0.
+For its timestamp and data fields, we can just put in today’s date and “Genesis block” or anything you like. As for the
+previousHash field, we can simply put “0” for now as there is no hash preceding the Genesis block.
+Get Latest Block Function
+Third, our chain needs a latestBlock function. This is used for get the information about the most recent block. This 
+functionality will be used for implementing our addBlock function.
+Add New Block Function
+Fourth, to continuously extend our block, we need an addBlock function. Blockchains have such a functionality as they need
+to get longer and longer as more information gets inputted into it. Thus, in the case of BTC for instance, a new block is
+created approx. every 10 minutes and each of these new blocks will hold all the transaction info that occurred within that
+10 min time frame.
+Implementing a addBlock function is simple. Our function takes in a Block object as an input which already possesses a 
+timestamp, and data. Then, our addBlock function will use the latestBlock function to give our new block an index and a 
+previousHash field. After that, we give our new block its own hash using the calculateHash function we wrote earlier. 
+Finally, we push this new block onto our chain and now our blockchain has one new block.
+Check Validity Function
+The final function we will implement is the checkValid function. This is used to check the integrity of the blockchain 
+and to detect whether or not anything has been tampered with.
+As stated earlier, hashes are critical for detecting changes in our blockchain as even the smallest change in the object 
+will result in an entirely different hash. Thus, for our checkValid function, we will use a for loop to go through the 
+blockchain and try to match its hashes to detect changes.
+There are two parts of our loop, the first is matching currentBlock.hash with currentBlock.calculateHash() and the other
+is matching currentBlock.previousHash with previousBlock.hash. The former is used to check whether or currentBlock’s info
+has been tampered with without updating currentBlock.hash The latter is used to check whether or not a previousBlock has 
+been tampered with.
+You may have the question of whether or not you can put in the if condition of
+if (currentBlock.previousHash !== previousBlock.calculateHash()) {
+    return false;
+}
+This theoretically seems like it should work. However, previousBlock is actually a slightly different object than the 
+actual block object from the chain even though it basically holds all the same info as the actual block. As a result,
+they produce different hashes. For instance, during my test run, the actual block’s hash is
+0c27196c36691e915fb2a2f83e63867ec5042abfda4832b02383a6ab40aa075c 
+while previousBlock’s hash is e6a312951e9e4ed6e4b2ef049246b282f71144599939ff6a5b97b0c53c941295 
+This is how sensitive hashes are.
+Putting it All Together
+Now, your overall program should look like this:
+
+You can test out your blockchain by adding in the following lines in the end
+
+Then, go to your terminal and run
+node main.js
+You should now see the following output:
+{
+    "chain": [
+        {
+            "index": 0,
+            "timestamp": 0,
+            "data": "01/01/2017",
+            "previousHash": "Genesis block",
+            "hash": "8163cbd8feafd38a96cd193f2b44940473c22b21ddbb7445bd99ee310dac28ae",
+            "nonce": 0
+        },
+        {
+            "index": 1,
+            "timestamp": "12/25/2017",
+            "data": {
+                "amount": 5
+            },
+            "previousHash": "8163cbd8feafd38a96cd193f2b44940473c22b21ddbb7445bd99ee310dac28ae",
+            "hash": "744ce201216f78bba5b87e371579898b97e473ac644d6a13ddda9cdbe05100f6",
+            "nonce": 0
+        },
+        {
+            "index": 2,
+            "timestamp": "12/26/2017",
+            "data": {
+                "amount": 10
+            },
+            "previousHash": "744ce201216f78bba5b87e371579898b97e473ac644d6a13ddda9cdbe05100f6",
+            "hash": "9e3cf69ee7a3f3f651b33500ea3f32ccf1a13590115c6739dda74920d54702c8",
+            "nonce": 0
+        }
+    ]
+}
+Is blockchain valid? true
+Summing Up
+Now you have a version 1 of a functioning blockchain! However, there is one small security issue that exists with 
+this blockchain. I encourage you to build a blockchain like this and test it out. Try to identify where the security 
+flaw is by trying to tamper with the data.
+Hint: this security flaw is directly tied to the implementation of the mining function that we will cover in Part 2 of 
+this tutorial.
